@@ -1,9 +1,16 @@
 import { useRouter } from 'next/router';
-import Link from "next/link";
-import { useState, useEffect } from "react";
-import { MainLayout } from '../../components/MainLayout';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { NextPageContext } from 'next';
 
-export default function Post({ post: serverPost }) {
+import { MainLayout } from '../../components/MainLayout';
+import { MyPost } from '../../interfaces/post';
+
+interface PostPageProps {
+  post: MyPost
+}
+
+export default function Post({ post: serverPost }: PostPageProps) {
   const [post, setPost] = useState(serverPost)
   const router = useRouter()
 
@@ -37,13 +44,19 @@ export default function Post({ post: serverPost }) {
   )
 }
 
-Post.getInitialProps = async ctx => {
+interface PostNextPageContext extends NextPageContext {
+  query: {
+    id: string
+  }
+}
+
+Post.getInitialProps = async (ctx: NextPageContext) => {
   if (!ctx.req) {
     return {post: null}
   }
 
   const response = await fetch(`http://localhost:4200/posts/${ctx.query.id}`)
-  const post = await response.json()
+  const post: MyPost = await response.json()
 
   return {
     post
